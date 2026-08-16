@@ -1,0 +1,7 @@
+export function makeGrid(rows=6,cols=6,rand=Math.random){const g=[];for(let r=0;r<rows;r++){const row=[];for(let c=0;c<cols;c++)row.push(1+Math.floor(rand()*9));g.push(row);}return g;}
+export function neighbors(r,c,rows,cols){const o=[];for(const [dr,dc] of [[0,1],[1,0],[0,-1],[-1,0]]){const nr=r+dr,nc=c+dc;if(nr>=0&&nr<rows&&nc>=0&&nc<cols)o.push([nr,nc]);}return o;}
+export function isConnected(cells){if(!cells.length)return false;const set=new Set(cells.map(([r,c])=>r+","+c));const start=cells[0];const q=[start],seen=new Set([start[0]+","+start[1]]);while(q.length){const [r,c]=q.shift();for(const [nr,nc] of neighbors(r,c,99,99)){const k=nr+","+nc;if(set.has(k)&&!seen.has(k)){seen.add(k);q.push([nr,nc]);}}}return seen.size===cells.length;}
+export function sumCells(grid,cells){return cells.reduce((s,[r,c])=>s+(grid[r]?.[c]??0),0);}
+export function clearCells(grid,cells){const next=grid.map(r=>r.slice());for(const [r,c] of cells)next[r][c]=0;return next;}
+export function refill(grid,rand=Math.random){const next=grid.map(r=>r.slice());for(let r=0;r<next.length;r++)for(let c=0;c<next[r].length;c++)if(next[r][c]===0)next[r][c]=1+Math.floor(rand()*9);return next;}
+export function tryClear(grid,cells){if(cells.length<2)return{ok:false,reason:"min"};if(!isConnected(cells))return{ok:false,reason:"conn"};if(sumCells(grid,cells)!==10)return{ok:false,reason:"sum"};const cleared=clearCells(grid,cells);return{ok:true,grid:refill(cleared),score:cells.length};}
